@@ -1,0 +1,73 @@
+.encuesta-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.encuesta-title {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #39bf71; /* Agrega el color que desees aquí */
+}
+
+.pregunta-container {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  margin-bottom: 5px;
+}
+
+button {
+  display: block;
+  margin: 0 auto;
+  margin-top: 20px;
+  background-color: rgb(181, 94, 247);
+  color: #fff;
+  transition: background-color 0.2s, color 0.2s;
+
+  &:hover {
+    background-color: rgb(227, 191, 254); /* Cambia el color de fondo al pasar el cursor sobre el botón */
+  }
+
+  &.seleccionado {
+    background-color: #28a745; /* Cambia el color de fondo cuando está seleccionado */
+    color: #000000; /* Cambia el color del texto cuando está seleccionado */
+  }
+}
+/* Estilo para la pregunta libre */
+.pregunta-libre-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.pregunta-libre-input {
+  width: 300px; /* Ajusta el ancho según tus necesidades */
+}
+
+/* Estilos para la respuesta libre */
+.respuesta-libre-container {
+  display: flex;
+  align-items: center;
+}
+
+.respuesta-libre-input {
+  flex: 1;
+  margin-left: 10px;
+}

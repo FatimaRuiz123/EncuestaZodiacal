@@ -1,0 +1,37 @@
+/* styles.css */
+
+/* Estilo para la tabla */
+table {
+  border-collapse: collapse;
+  border: 1px solid black; /* Borde negro de grosor 2px */
+  margin-left: 35px;
+  margin-right: auto;
+}
+
+/* Estilo para las celdas de la tabla */
+th, td {
+  border: 1px solid black; /* Borde negro de grosor 2px */
+  padding: 8px;
+  text-align: center;
+
+}
+
+/* Estilo para las cabeceras de la tabla */
+th {
+  background-color: rgb(227, 191, 254); /* Color de fondo gris claro */
+  color: black;
+}
+
+.boton{
+    background-color: rgb(227, 191, 254);
+    align-items: center;
+    margin-left: 40px;
+    margin-block-end: 50px;
+    width: 200px;
+    height: 50px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+.filtro{
+  margin-left: 35px;
+
+ }

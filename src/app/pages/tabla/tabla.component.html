@@ -1,0 +1,26 @@
+<!-- Agrega las clases "filtro-container" y "tabla-container" para los contenedores -->
+<div class="filtro-container filtro">
+  <mat-form-field appearance="fill" class="nombre-input">
+    <input matInput [(ngModel)]="filtroNombre" placeholder="Filtrar por nombre">
+  </mat-form-field>
+</div>
+
+  <table class="table ">
+    <thead >
+      <tr >
+        <th>Nombre</th>
+        <th *ngFor="let pregunta of preguntas" class="pregunta-cabecera ">{{ pregunta.texto }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let respuesta of respuestas | filter: filtroNombre">
+        <td>{{ respuesta.nombre }}</td>
+        <td *ngFor="let pregunta of preguntas" class="respuesta-celda">
+          {{ obtenerRespuestaNombre(respuesta, pregunta.id) }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+<button class="btn boton" (click)="entrenar()"  routerLink="/entrenamiento">Entrenar</button>
+  <button class="btn boton" (click)="exportar()" >Exportar</button>

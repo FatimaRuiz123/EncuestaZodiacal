@@ -1,0 +1,22 @@
+<div class="encuesta-container">
+  <h1 class="encuesta-title">Encuesta Zodiacal</h1>
+  <mat-form-field appearance="fill" class="nombre-input">
+    <input matInput [(ngModel)]="nombrePersona" placeholder="Ingresa tu nombre">
+  </mat-form-field>
+  <div *ngFor="let pregunta of preguntas" class="pregunta-container">
+    <h3>{{ pregunta.texto }}</h3>
+    <ng-container *ngIf="pregunta.opciones">
+      <!-- Opciones de respuesta para preguntas con opciones predefinidas -->
+      <ul>
+        <li *ngFor="let opcion of pregunta.opciones">
+          <input type="radio" [name]="'pregunta-' + pregunta.id" [checked]="pregunta.respuesta === opcion" (change)="guardarRespuesta(pregunta, opcion)">
+          {{ opcion }}
+        </li>
+      </ul>
+    </ng-container>
+  </div>
+  <div>
+  <button mat-raised-button color="primary" (click)="enviarRespuestas()">Enviar Respuestas</button>
+  <button mat-raised-button color="primary" (click)="probarAlgoritmo()"  routerLink="/probarAlgoritmo">Descubrir mi signo</button>
+</div>
+</div>
