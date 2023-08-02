@@ -139,33 +139,20 @@ export class TablaComponent implements OnInit, OnDestroy {
   entrenar() {
     const dataMatrix: number[][] = [];
 
-    // Filtrar las respuestas de acuerdo al filtro de nombre y los filtros de preguntas
-    const respuestasFiltradas = this.respuestas.filter(respuesta => {
-      return this.filtroNombre === '' || respuesta.nombre.toLowerCase().includes(this.filtroNombre.toLowerCase());
-    }).filter(respuesta => {
-      return this.aplicarFiltros(respuesta);
-    });
 
-    // Recorrer las respuestas filtradas para obtener los datos de entrenamiento
-    for (const respuesta of respuestasFiltradas) {
+    // Recorrer las respuestas para obtener los datos de entrenamiento
+    for (const respuesta of this.respuestas) {
       const rowData: number[] = [];
 
       for (const encuestaItem of respuesta.encuesta) {
-        const preguntaId = encuestaItem.idpregunta;
-        const filtroValor = this.filtros[preguntaId];
-
-        if (filtroValor === '' || encuestaItem.respuesta === filtroValor) {
-          rowData.push(encuestaItem.idpregunta); // Coordenada X (idpregunta)
-          rowData.push(encuestaItem.idrespuesta); // Coordenada Y (idrespuesta)
-        }
+        rowData.push(encuestaItem.idpregunta); // Coordenada X (idpregunta)
+        rowData.push(encuestaItem.idrespuesta); // Coordenada Y (idrespuesta)
       }
 
-      if (rowData.length > 0) {
-        dataMatrix.push(rowData);
-      }
+      dataMatrix.push(rowData);
     }
 
-    // Ahora tienes la matriz dataMatrix con los datos filtrados para el entrenamiento
+    // Ahora tienes la matriz dataMatrix con los datos adecuados para el entrenamiento
     console.log(dataMatrix);
 
     // Configurar las opciones para k-means
@@ -181,8 +168,7 @@ export class TablaComponent implements OnInit, OnDestroy {
     const result = kmeans(dataMatrix, k, options);
 
     // Emitir el resultado a través de un evento para que otros componentes puedan recibirlo
-    this.kmeansTrained.emit(result);
-
+    this.kmeansTrained.emit(result)
     // result.centroids: Un array con las coordenadas de los centroides de cada cluster
     console.log('Centroids:', result.centroids);
 
@@ -192,8 +178,7 @@ export class TablaComponent implements OnInit, OnDestroy {
     this.router.navigate(['/entrenamiento'], {
       state: { centroids: JSON.stringify(result.centroids), clusters: JSON.stringify(result.clusters) }
     });
-  }
-
+  }
 
 exportarExcel() {
   const data: any[][] = [];
@@ -224,21 +209,40 @@ exportarExcel() {
     worksheet.addRow(rowData);
   });
 
-  // Estilos para el encabezado (cabecera) de la tabla
+  // Estilo para el encabezado (cabecera) de la tabla
   const headerRow = worksheet.getRow(1);
   headerRow.font = { bold: true, color: { argb: '00000' } };
   headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'E3BFFE' } };
 
-  // Estilos para el contenido de la tabla (excluyendo el encabezado)
+  // Estilo para el contenido de la tabla (excluyendo el encabezado)
   for (let row = 2; row <= data.length; row++) {
     const contentRow = worksheet.getRow(row);
     contentRow.font = { bold: false };
     contentRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFF' } };
   }
 
-  // Ajustar el ancho de las columnas (opcional)
-  worksheet.columns.forEach(column => {
-    column.width = 15;
+   // Ajustar el ancho de las columnas automáticamente
+   worksheet.columns.forEach((column: Partial<ExcelJS.Column>) => {
+    if (column.values) {
+      const maxLength = Math.max(
+        ...column.values
+          .filter((cellValue: ExcelJS.CellValue | null | undefined) => cellValue !== null && cellValue !== undefined)
+          .map((cellValue: ExcelJS.CellValue) => (cellValue ? cellValue.toString().length : 0))
+      );
+      const width = maxLength < 10 ? 10 : maxLength; // Ajustar el ancho mínimo de la columna
+      column.width = width;
+    }
+  });
+  // Estilo para los bordes de la tabla
+  worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' },
+      };
+    });
   });
 
   // Generar el archivo Excel y descargarlo
@@ -280,19 +284,30 @@ exportarPDF() {
           widths: Array(columns.length).fill('*'),
           body: tableBody,
         },
-        style: 'table',
+        // Aplicar el estilo de la cabecera de la tabla (headerRows)
+        layout: {
+          fillColor: function (rowIndex: number, node: any, columnIndex: any) {
+            // Fila de cabecera (preguntas)
+            if (rowIndex === 0) {
+              return '#E3BFFE'; // Color de fondo para la cabecera
+            }
+            // Resto de filas (respuestas)
+            return null;
+          }
+        },
+        style: 'table', // Estilo para las respuestas en el cuerpo (body)
       },
     ],
     styles: {
       header: {
         fontSize: 18,
         bold: true,
-        color: '#000000',
+        color: '#0000',
         margin: [0, 10, 0, 10], // Ajusta los márgenes superior e inferior según lo necesites
       },
       table: {
         fontSize: 5, // Ajustar el tamaño del texto de la tabla
-        color: 'blue',
+        color: 'black',
       },
     },
   };

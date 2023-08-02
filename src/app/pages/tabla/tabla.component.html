@@ -6,7 +6,7 @@
 
   <!-- Filtros para cada pregunta -->
   <ng-container *ngFor="let pregunta of preguntas">
-    <mat-form-field appearance="fill" class="pregunta-input">
+    <mat-form-field appearance="fill" class="pregunta-input filtros">
       <mat-label>{{ pregunta.texto }}</mat-label>
       <mat-select [(ngModel)]="filtros[pregunta.id]">
         <!-- Opción vacía para filtrar cuando esté vacío -->
