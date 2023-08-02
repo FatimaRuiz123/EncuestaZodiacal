@@ -1,37 +1,77 @@
-<h2>Resultados del Algoritmo KMeans</h2>
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px; /* Agregamos un margen de 20px en todos los lados del body */
+    }
 
-<table>
-  <thead>
-    <tr>
-      <th>Cluster</th>
-      <th>Centroide X</th>
-      <th>Centroide Y</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let centroid of centroids; let i = index">
-      <td>Cluster {{ i + 1 }}</td>
-      <td>{{ centroid[0] }}</td>
-      <td>{{ centroid[1] }}</td>
-    </tr>
-  </tbody>
-</table>
+    h2 {
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
 
-<h2>Asignación de Puntos a Clusters</h2>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 20px;
+    }
 
-<table>
-  <thead>
-    <tr>
-      <th>Punto</th>
-      <th>Cluster</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let cluster of clusters; let i = index">
-      <td>{{ i + 1 }}</td>
-      <td>{{ cluster }}</td>
-    </tr>
-  </tbody>
-</table>
-<h2>Gráfico de Asignación de Puntos a Clusters con D3.js</h2>
-<svg #graficaD3 width="400" height="200"></svg>
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <h2>Resultados del Algoritmo KMeans</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Cluster</th>
+        <th>Centroide X</th>
+        <th>Centroide Y</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let centroid of centroids; let i = index">
+        <td>Cluster {{ i + 1 }}</td>
+        <td>{{ centroid[0] }}</td>
+        <td>{{ centroid[1] }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Asignación de Puntos a Clusters</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Punto</th>
+        <th>Cluster</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let cluster of clusters; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ cluster }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Gráfico de Asignación de Puntos a Clusters con D3.js</h2>
+  <svg #graficaD3 width="400" height="200"></svg>
+</body>
+</html>

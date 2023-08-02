@@ -20,6 +20,7 @@ import { EntrenamientoComponent } from './pages/entrenamiento/entrenamiento.comp
 import { ProbarAlgoritmoComponent } from './pages/probar-algoritmo/probar-algoritmo.component';
 import { KmeansDataService } from './pages/tabla/kmeans-data.service';
 import { MatSelectModule } from '@angular/material/select';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 
 @NgModule({
@@ -45,7 +46,8 @@ import { MatSelectModule } from '@angular/material/select';
     MatIconModule,
     MatTableModule,
     MatInputModule,
-    MatSelectModule
+    MatSelectModule,
+    NgxChartsModule
   ],
   providers: [KmeansDataService],
   bootstrap: [AppComponent]
