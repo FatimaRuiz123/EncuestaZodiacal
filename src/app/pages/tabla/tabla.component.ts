@@ -101,6 +101,7 @@ export class TablaComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.obtenerPreguntas();
     this.obtenerRespuestas();
+    
   }
 
   obtenerPreguntas() {
@@ -137,23 +138,25 @@ export class TablaComponent implements OnInit, OnDestroy {
   }
 
   entrenar() {
-    const dataMatrix: number[][] = [];
+    // Filtrar las respuestas que cumplen con los filtros aplicados
+  const respuestasFiltradas = this.respuestas.filter(respuesta => this.aplicarFiltros(respuesta));
 
+  const dataMatrix: number[][] = [];
 
-    // Recorrer las respuestas para obtener los datos de entrenamiento
-    for (const respuesta of this.respuestas) {
-      const rowData: number[] = [];
+  // Recorrer las respuestas filtradas para obtener los datos de entrenamiento
+  for (const respuesta of respuestasFiltradas) {
+    const rowData: number[] = [];
 
-      for (const encuestaItem of respuesta.encuesta) {
-        rowData.push(encuestaItem.idpregunta); // Coordenada X (idpregunta)
-        rowData.push(encuestaItem.idrespuesta); // Coordenada Y (idrespuesta)
-      }
-
-      dataMatrix.push(rowData);
+    for (const encuestaItem of respuesta.encuesta) {
+      rowData.push(encuestaItem.idpregunta); // Coordenada X (idpregunta)
+      rowData.push(encuestaItem.idrespuesta); // Coordenada Y (idrespuesta)
     }
 
-    // Ahora tienes la matriz dataMatrix con los datos adecuados para el entrenamiento
-    console.log(dataMatrix);
+    dataMatrix.push(rowData);
+  }
+
+  // Ahora tienes la matriz dataMatrix con los datos filtrados para el entrenamiento
+  console.log(dataMatrix);
 
     // Configurar las opciones para k-means
     const options: KMeansOptions = {
@@ -180,101 +183,147 @@ export class TablaComponent implements OnInit, OnDestroy {
     });
   }
 
-  exportarExcel() {
-    const data: any[][] = [];
-    const headers: any[] = ['Nombre', ...this.preguntas.map(pregunta => pregunta.texto)];
+exportarExcel() {
+  const data: any[][] = [];
+  const headers: any[] = ['Nombre', ...this.preguntas.map(pregunta => pregunta.texto)];
 
-    data.push(headers);
+  data.push(headers);
 
-    this.respuestas.forEach(respuesta => {
-      const rowData: any[] = [respuesta.nombre];
-      this.preguntas.forEach(pregunta => {
-        rowData.push(this.obtenerRespuestaNombre(respuesta, pregunta.id));
-      });
-      data.push(rowData);
+  // Filtrar las respuestas de acuerdo al filtro de nombre y los filtros de preguntas
+  const respuestasFiltradas = this.respuestas.filter(respuesta => {
+    return this.filtroNombre === '' || respuesta.nombre.toLowerCase().includes(this.filtroNombre.toLowerCase());
+  }).filter(respuesta => {
+    return this.aplicarFiltros(respuesta);
+  });
+
+  respuestasFiltradas.forEach(respuesta => {
+    const rowData: any[] = [respuesta.nombre];
+    this.preguntas.forEach(pregunta => {
+      rowData.push(this.obtenerRespuestaNombre(respuesta, pregunta.id));
     });
+    data.push(rowData);
+  });
 
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Tabla Datos');
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Tabla Datos');
 
-    // Agregar los datos a la hoja de cálculo
-    data.forEach(rowData => {
-      worksheet.addRow(rowData);
-    });
+  // Agregar los datos a la hoja de cálculo
+  data.forEach(rowData => {
+    worksheet.addRow(rowData);
+  });
 
-    // Estilos para el encabezado (cabecera) de la tabla
-    const headerRow = worksheet.getRow(1);
-    headerRow.font = { bold: true, color: { argb: '00000' } };
-    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'E3BFFE' } };
+  // Estilo para el encabezado (cabecera) de la tabla
+  const headerRow = worksheet.getRow(1);
+  headerRow.font = { bold: true, color: { argb: '00000' } };
+  headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'E3BFFE' } };
 
-    // Estilos para el contenido de la tabla (excluyendo el encabezado)
-    for (let row = 2; row <= data.length; row++) {
-      const contentRow = worksheet.getRow(row);
-      contentRow.font = { bold: false };
-      contentRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFF' } };
-    }
-
-    // Ajustar el ancho de las columnas (opcional)
-    worksheet.columns.forEach(column => {
-      column.width = 15;
-    });
-
-
-    // Generar el archivo Excel y descargarlo
-    workbook.xlsx.writeBuffer().then((data) => {
-      const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      saveAs(blob, 'tabla_datos.xlsx');
-    });
+  // Estilo para el contenido de la tabla (excluyendo el encabezado)
+  for (let row = 2; row <= data.length; row++) {
+    const contentRow = worksheet.getRow(row);
+    contentRow.font = { bold: false };
+    contentRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFF' } };
   }
 
-    exportarPDF() {
-      const columns = ['Nombre', ...this.preguntas.map(pregunta => pregunta.texto)];
-      const rows: string[][] = [];
-
-      this.respuestas.forEach(respuesta => {
-        const rowData = [respuesta.nombre];
-        this.preguntas.forEach(pregunta => {
-          rowData.push(this.obtenerRespuestaNombre(respuesta, pregunta.id));
-        });
-        rows.push(rowData);
-      });
-
-      const tableBody = [columns, ...rows];
-
-      const docDefinition: any = {
-        pageOrientation: 'landscape',
-        content: [
-          { text: 'Tabla de Datos', style: 'header' },
-          {
-            table: {
-              headerRows: 1,
-              widths: Array(columns.length).fill('*'),
-              body: tableBody,
-            },
-            style: 'table',
-          },
-        ],
-        styles: {
-          header: {
-            fontSize: 18,
-            bold: true,
-            color: '#000000',
-            margin: [0, 10, 0, 10], // Ajusta los márgenes superior e inferior según lo necesites
-          },
-          table: {
-            fontSize: 5, // Ajustar el tamaño del texto de la tabla
-            color: 'blue',
-          },
-        },
+   // Ajustar el ancho de las columnas automáticamente
+   worksheet.columns.forEach((column: Partial<ExcelJS.Column>) => {
+    if (column.values) {
+      const maxLength = Math.max(
+        ...column.values
+          .filter((cellValue: ExcelJS.CellValue | null | undefined) => cellValue !== null && cellValue !== undefined)
+          .map((cellValue: ExcelJS.CellValue) => (cellValue ? cellValue.toString().length : 0))
+      );
+      const width = maxLength < 10 ? 10 : maxLength; // Ajustar el ancho mínimo de la columna
+      column.width = width;
+    }
+  });
+  // Estilo para los bordes de la tabla
+  worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' },
       };
+    });
+  });
 
-      this.generarPDF(docDefinition); // Llamar a la función para generar el PDF
-    }
-    generarPDF(docDefinition: any) {
-      const pdfDocGenerator = pdfMake.createPdf(docDefinition);
+  // Generar el archivo Excel y descargarlo
+  workbook.xlsx.writeBuffer().then((data) => {
+    const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, 'tabla_datos.xlsx');
+  });
+}
 
-      // Opción 1: Abre el PDF en una nueva ventana del navegador
-      pdfDocGenerator.open();
-    }
+
+exportarPDF() {
+  const columns = ['Nombre', ...this.preguntas.map(pregunta => pregunta.texto)];
+  const rows: string[][] = [];
+
+  // Filtrar las respuestas de acuerdo al filtro de nombre y los filtros de preguntas
+  const respuestasFiltradas = this.respuestas.filter(respuesta => {
+    return this.filtroNombre === '' || respuesta.nombre.toLowerCase().includes(this.filtroNombre.toLowerCase());
+  }).filter(respuesta => {
+    return this.aplicarFiltros(respuesta);
+  });
+
+  respuestasFiltradas.forEach(respuesta => {
+    const rowData = [respuesta.nombre];
+    this.preguntas.forEach(pregunta => {
+      rowData.push(this.obtenerRespuestaNombre(respuesta, pregunta.id));
+    });
+    rows.push(rowData);
+  });
+
+  const tableBody = [columns, ...rows];
+
+  const docDefinition: any = {
+    pageOrientation: 'landscape',
+    content: [
+      { text: 'Tabla de Datos', style: 'header' },
+      {
+        table: {
+          headerRows: 1,
+          widths: Array(columns.length).fill('*'),
+          body: tableBody,
+        },
+        // Aplicar el estilo de la cabecera de la tabla (headerRows)
+        layout: {
+          fillColor: function (rowIndex: number, node: any, columnIndex: any) {
+            // Fila de cabecera (preguntas)
+            if (rowIndex === 0) {
+              return '#E3BFFE'; // Color de fondo para la cabecera
+            }
+            // Resto de filas (respuestas)
+            return null;
+          }
+        },
+        style: 'table', // Estilo para las respuestas en el cuerpo (body)
+      },
+    ],
+    styles: {
+      header: {
+        fontSize: 18,
+        bold: true,
+        color: '#0000',
+        margin: [0, 10, 0, 10], // Ajusta los márgenes superior e inferior según lo necesites
+      },
+      table: {
+        fontSize: 5, // Ajustar el tamaño del texto de la tabla
+        color: 'black',
+      },
+    },
+  };
+
+  this.generarPDF(docDefinition); // Llamar a la función para generar el PDF
+}
+
+generarPDF(docDefinition: any) {
+  const pdfDocGenerator = pdfMake.createPdf(docDefinition);
+
+  // Opción 1: Abre el PDF en una nueva ventana del navegador
+  pdfDocGenerator.open();
+
+}
 
   }

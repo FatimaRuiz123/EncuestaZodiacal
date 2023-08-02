@@ -1,6 +1,9 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
+
 import * as d3 from 'd3';
+
+
 
 @Component({
   selector: 'app-entrenamiento',
@@ -8,6 +11,7 @@ import * as d3 from 'd3';
   styleUrls: ['./entrenamiento.component.scss']
 })
 export class EntrenamientoComponent implements OnInit {
+  @ViewChild('graficaD3') graficaD3Ref?: ElementRef<SVGElement>;
   centroids: number[][] | undefined;
   clusters: Cluster[] | undefined;
   @ViewChild('graficaD3', { static: true }) graficaD3!: ElementRef<SVGSVGElement>;
@@ -19,6 +23,17 @@ export class EntrenamientoComponent implements OnInit {
     if (state) {
       this.centroids = JSON.parse(state['centroids']);
       this.clusters = JSON.parse(state['clusters']);
+      // this.centroids = [
+      //   [3, 4],
+      //   [7, 8]
+      // ];
+
+      // this.clusters = [
+      //   { x: 2, y: 5 },
+      //   { x: 4, y: 6 },
+      //   { x: 6, y: 7 },
+      //   { x: 8, y: 9 },
+      // ];
     }
 
   }
@@ -29,6 +44,7 @@ export class EntrenamientoComponent implements OnInit {
     console.log('Clusters:', this.clusters);
     this.mostrarGrafico();
   }
+
 
   // Si deseas volver a la pantalla anterior, puedes usar esta función
   volverATabla() {
@@ -77,32 +93,33 @@ export class EntrenamientoComponent implements OnInit {
       .enter()
       .append('circle')
       .attr('class', 'centroid')
-      .attr('cx', (d) => xScale(d[0])) // Mostrar el Centroide X en el eje X
-      .attr('cy', (d) => yScale(d[1])) // Mostrar el Centroide Y en el eje Y
+      .attr('cx', (d) => xScale(d[1])) // Mostrar el Centroide X en el eje X
+      .attr('cy', (d) => yScale(d[2])) // Mostrar el Centroide Y en el eje Y
       .attr('r', 7) // Tamaño del círculo que representa el centroide
-      .style('fill', 'black');
+      .style('fill', 'green');
 
     // Ejemplo de dibujar puntos asignados a clústeres
-    this.clusters?.forEach((cluster, index) => {
-      cluster.points.forEach((point) => {
-        g.append('circle')
-          .attr('class', 'cluster-point')
-          .attr('cx', xScale(point[0])) // Mostrar el Punto X en el eje X
-          .attr('cy', yScale(point[1])) // Mostrar el Punto Y en el eje Y
-          .attr('r', 5) // Tamaño del círculo que representa los puntos del clúster
-          .style('fill', `color del cluster ${index}`); // Puedes asignar un color único para cada clúster
-      });
-    });
+    g.selectAll('circle.cluster-point')
+      .data(this.clusters || [])
+      .enter()
+      .append('circle')
+      .attr('class', 'cluster-point')
+      .attr('cx', (d) => xScale(d.x)) // Mostrar el Punto X en el eje X
+      .attr('cy', (d) => yScale(d.y)) // Mostrar el Punto Y en el eje Y
+      .attr('r', 5) // Tamaño del círculo que representa los puntos del clúster
+      .style('fill','blue'); // Asegúrate de que la propiedad color exista en tu clase Cluster
   }
 
 }
 
 export class Cluster {
-  centroid: number[];
-  points: number[][]; // Agregar la propiedad points para almacenar los puntos del clúster
+  x: number;
+  y: number;
 
-  constructor(centroid: number[], points: number[][]) {
-    this.centroid = centroid;
-    this.points = points;
+
+  constructor(x: number, y: number, color: string) {
+    this.x = x;
+    this.y = y;
+
   }
 }
