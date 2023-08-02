@@ -27,7 +27,7 @@ interface Cluster {
   points: number[][];
 }
 
-interface KMeansResult {
+export interface KMeansResult {
   clusters: Cluster[];
   centroids: number[][];
 }
@@ -150,7 +150,9 @@ export class TablaComponent implements OnInit, OnDestroy {
     // result.clusters: Un array con las asignaciones de cada punto a su cluster
     console.log('Clusters:', result.clusters);
 
-    this.router.navigate(['/entrenamiento'], { state: { centroids: result.centroids, clusters: result.clusters } });
+    this.router.navigate(['/entrenamiento'], {
+      state: { centroids: JSON.stringify(result.centroids), clusters: JSON.stringify(result.clusters) }
+    });
   }
 
   exportarExcel() {
