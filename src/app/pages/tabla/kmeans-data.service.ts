@@ -7,5 +7,6 @@ import { Injectable } from '@angular/core';
 })
 export class KmeansDataService {
 
-  points: number[][] | any;
+  points: number[][] | any; // Esta propiedad almacenará los datos filtrados
+
 }

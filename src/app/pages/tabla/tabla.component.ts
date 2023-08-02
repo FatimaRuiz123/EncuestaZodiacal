@@ -137,23 +137,25 @@ export class TablaComponent implements OnInit, OnDestroy {
   }
 
   entrenar() {
-    const dataMatrix: number[][] = [];
+    // Filtrar las respuestas que cumplen con los filtros aplicados
+  const respuestasFiltradas = this.respuestas.filter(respuesta => this.aplicarFiltros(respuesta));
 
+  const dataMatrix: number[][] = [];
 
-    // Recorrer las respuestas para obtener los datos de entrenamiento
-    for (const respuesta of this.respuestas) {
-      const rowData: number[] = [];
+  // Recorrer las respuestas filtradas para obtener los datos de entrenamiento
+  for (const respuesta of respuestasFiltradas) {
+    const rowData: number[] = [];
 
-      for (const encuestaItem of respuesta.encuesta) {
-        rowData.push(encuestaItem.idpregunta); // Coordenada X (idpregunta)
-        rowData.push(encuestaItem.idrespuesta); // Coordenada Y (idrespuesta)
-      }
-
-      dataMatrix.push(rowData);
+    for (const encuestaItem of respuesta.encuesta) {
+      rowData.push(encuestaItem.idpregunta); // Coordenada X (idpregunta)
+      rowData.push(encuestaItem.idrespuesta); // Coordenada Y (idrespuesta)
     }
 
-    // Ahora tienes la matriz dataMatrix con los datos adecuados para el entrenamiento
-    console.log(dataMatrix);
+    dataMatrix.push(rowData);
+  }
+
+  // Ahora tienes la matriz dataMatrix con los datos filtrados para el entrenamiento
+  console.log(dataMatrix);
 
     // Configurar las opciones para k-means
     const options: KMeansOptions = {
