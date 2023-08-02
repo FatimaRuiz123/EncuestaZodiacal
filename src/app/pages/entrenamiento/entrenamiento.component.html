@@ -1,3 +1,37 @@
-<h1>Gráfica de K-Means</h1>
-<canvas id="graficaCanvas" width="400" height="400"></canvas>
-<canvas id="graficaCanvas"></canvas>
+<h2>Resultados del Algoritmo KMeans</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Cluster</th>
+      <th>Centroide X</th>
+      <th>Centroide Y</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let centroid of centroids; let i = index">
+      <td>Cluster {{ i + 1 }}</td>
+      <td>{{ centroid[0] }}</td>
+      <td>{{ centroid[1] }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Asignación de Puntos a Clusters</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Punto</th>
+      <th>Cluster</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let cluster of clusters; let i = index">
+      <td>{{ i + 1 }}</td>
+      <td>{{ cluster }}</td>
+    </tr>
+  </tbody>
+</table>
+<h2>Gráfico de Asignación de Puntos a Clusters con D3.js</h2>
+<svg #graficaD3 width="400" height="200"></svg>

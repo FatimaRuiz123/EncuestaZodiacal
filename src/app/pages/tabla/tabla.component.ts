@@ -13,6 +13,7 @@ import { saveAs } from 'file-saver';
 import * as ExcelJS from 'exceljs';
 import { Router } from '@angular/router';
 import { EventEmitter } from '@angular/core';
+import { KmeansDataService } from './kmeans-data.service';
 
 export interface KMeansOptions {
   maxIterations: number;
@@ -36,6 +37,7 @@ export interface KMeansResult {
 export interface Pregunta {
   id: number;
   texto: string;
+  opciones: string[]; // Agregar la propiedad opciones y definir su tipo apropiado
 }
 
 export interface Respuesta {
@@ -74,15 +76,21 @@ export class TablaComponent implements OnInit, OnDestroy {
   preguntas: Pregunta[] = [];
   respuestas: Respuesta[] = [];
   filtroNombre: string = '';
+  filtros: { [key: number]: string } = {}; // Agregar el objeto de filtros
 
-   myEventEmitter: EventEmitter<any> = new EventEmitter<any>();
+  myEventEmitter: EventEmitter<any> = new EventEmitter<any>();
 
   private unsubscribe$ = new Subject<void>();
   kmeansTrained: any;
   result: KMeansResult | any;
 
-  constructor(private http: HttpClient, private snackBar: MatSnackBar, private router: Router) {
+  // Declaración de la variable dataMatrix
+  dataMatrix: number[][] = [];
+
+  clusterData: Cluster[] = [];
+  constructor(private http: HttpClient, private snackBar: MatSnackBar, private router: Router, private kmeansDataService: KmeansDataService) {
     this.kmeansTrained = new EventEmitter<any>();
+    this.kmeansDataService.points = this.clusterData.map(cluster => cluster.points);
   }
   ngOnDestroy(){
     this.unsubscribe$.next();
@@ -112,8 +120,25 @@ export class TablaComponent implements OnInit, OnDestroy {
     return respuestaPregunta ? respuestaPregunta.respuesta : '';
   }
 
+  // Agregar la función limpiarFiltros
+  limpiarFiltros() {
+    this.filtros = {};
+  }
+
+  aplicarFiltros(respuesta: Respuesta): boolean {
+    return Object.keys(this.filtros).every(preguntaId => {
+      const filtroValor = this.filtros[Number(preguntaId)]; // Convertir preguntaId a número
+      if (filtroValor === '') {
+        return true;
+      }
+      const respuestaPregunta = respuesta.encuesta.find(pregunta => pregunta.idpregunta === Number(preguntaId));
+      return respuestaPregunta ? respuestaPregunta.respuesta === filtroValor : false;
+    });
+  }
+
   entrenar() {
     const dataMatrix: number[][] = [];
+
 
     // Recorrer las respuestas para obtener los datos de entrenamiento
     for (const respuesta of this.respuestas) {

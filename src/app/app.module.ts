@@ -18,6 +18,8 @@ import { FilterPipe } from './pages/tabla/filter.pipe';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EntrenamientoComponent } from './pages/entrenamiento/entrenamiento.component';
 import { ProbarAlgoritmoComponent } from './pages/probar-algoritmo/probar-algoritmo.component';
+import { KmeansDataService } from './pages/tabla/kmeans-data.service';
+import { MatSelectModule } from '@angular/material/select';
 
 
 @NgModule({
@@ -42,8 +44,10 @@ import { ProbarAlgoritmoComponent } from './pages/probar-algoritmo/probar-algori
     MatInputModule,
     MatIconModule,
     MatTableModule,
+    MatInputModule,
+    MatSelectModule
   ],
-  providers: [],
+  providers: [KmeansDataService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

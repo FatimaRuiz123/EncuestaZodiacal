@@ -3,25 +3,47 @@
   <mat-form-field appearance="fill" class="nombre-input">
     <input matInput [(ngModel)]="filtroNombre" placeholder="Filtrar por nombre">
   </mat-form-field>
+
+  <!-- Filtros para cada pregunta -->
+  <ng-container *ngFor="let pregunta of preguntas">
+    <mat-form-field appearance="fill" class="pregunta-input">
+      <mat-label>{{ pregunta.texto }}</mat-label>
+      <mat-select [(ngModel)]="filtros[pregunta.id]">
+        <!-- Opción vacía para filtrar cuando esté vacío -->
+        <mat-option [value]="''"></mat-option>
+        <!-- Opciones para cada pregunta -->
+        <mat-option *ngFor="let opcion of pregunta.opciones" [value]="opcion">
+          {{ opcion }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </ng-container>
+
+  <button class="boton" color="primary" (click)="limpiarFiltros()">Limpiar Filtros</button>
 </div>
 
-  <table class="table ">
-    <thead >
-      <tr >
+<div class="tabla-container">
+  <table>
+    <thead>
+      <tr>
         <th>Nombre</th>
-        <th *ngFor="let pregunta of preguntas" class="pregunta-cabecera ">{{ pregunta.texto }}</th>
+        <th *ngFor="let pregunta of preguntas">{{ pregunta.texto }}</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let respuesta of respuestas | filter: filtroNombre">
-        <td>{{ respuesta.nombre }}</td>
-        <td *ngFor="let pregunta of preguntas" class="respuesta-celda">
-          {{ obtenerRespuestaNombre(respuesta, pregunta.id) }}
-        </td>
+        <!-- Vamos a aplicar el filtro manualmente -->
+        <ng-container *ngIf="aplicarFiltros(respuesta)">
+          <td>{{ respuesta.nombre }}</td>
+          <td *ngFor="let pregunta of preguntas">
+            {{ obtenerRespuestaNombre(respuesta, pregunta.id) }}
+          </td>
+        </ng-container>
       </tr>
     </tbody>
   </table>
+</div>
 
-<button class="btn boton" (click)="entrenar()"  routerLink="/entrenamiento">Entrenar</button>
+<button class="btn boton" (click)="entrenar()">Entrenar</button>
 <button class="btn boton" (click)="exportarExcel()">Exportar a Excel</button>
 <button class="btn boton" (click)="exportarPDF()">Exportar a PDF</button>
