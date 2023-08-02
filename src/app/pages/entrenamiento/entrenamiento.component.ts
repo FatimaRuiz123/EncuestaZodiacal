@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { Cluster } from 'cluster';
 // import { ActivatedRoute } from '@angular/router';
 // import { Chart } from 'chart.js'; // Corregir la ruta de importación eliminando /dist
+import { AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import * as d3 from 'd3';
 
 
 @Component({
@@ -11,6 +13,7 @@ import { Cluster } from 'cluster';
   styleUrls: ['./entrenamiento.component.scss']
 })
 export class EntrenamientoComponent implements OnInit {
+  @ViewChild('graficaD3') graficaD3Ref?: ElementRef<SVGElement>;
   centroids: number[][] | undefined;
   clusters: Cluster[] | undefined;
 
@@ -28,10 +31,5 @@ export class EntrenamientoComponent implements OnInit {
     // Aquí puedes usar los datos de centroids y clusters para mostrar el gráfico de KMeans en la pantalla
     console.log('Centroids:', this.centroids);
     console.log('Clusters:', this.clusters);
-  }
-
-  // Si deseas volver a la pantalla anterior, puedes usar esta función
-  volverATabla() {
-    this.router.navigate(['/tabla']);
   }
 }

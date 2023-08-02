@@ -139,20 +139,33 @@ export class TablaComponent implements OnInit, OnDestroy {
   entrenar() {
     const dataMatrix: number[][] = [];
 
+    // Filtrar las respuestas de acuerdo al filtro de nombre y los filtros de preguntas
+    const respuestasFiltradas = this.respuestas.filter(respuesta => {
+      return this.filtroNombre === '' || respuesta.nombre.toLowerCase().includes(this.filtroNombre.toLowerCase());
+    }).filter(respuesta => {
+      return this.aplicarFiltros(respuesta);
+    });
 
-    // Recorrer las respuestas para obtener los datos de entrenamiento
-    for (const respuesta of this.respuestas) {
+    // Recorrer las respuestas filtradas para obtener los datos de entrenamiento
+    for (const respuesta of respuestasFiltradas) {
       const rowData: number[] = [];
 
       for (const encuestaItem of respuesta.encuesta) {
-        rowData.push(encuestaItem.idpregunta); // Coordenada X (idpregunta)
-        rowData.push(encuestaItem.idrespuesta); // Coordenada Y (idrespuesta)
+        const preguntaId = encuestaItem.idpregunta;
+        const filtroValor = this.filtros[preguntaId];
+
+        if (filtroValor === '' || encuestaItem.respuesta === filtroValor) {
+          rowData.push(encuestaItem.idpregunta); // Coordenada X (idpregunta)
+          rowData.push(encuestaItem.idrespuesta); // Coordenada Y (idrespuesta)
+        }
       }
 
-      dataMatrix.push(rowData);
+      if (rowData.length > 0) {
+        dataMatrix.push(rowData);
+      }
     }
 
-    // Ahora tienes la matriz dataMatrix con los datos adecuados para el entrenamiento
+    // Ahora tienes la matriz dataMatrix con los datos filtrados para el entrenamiento
     console.log(dataMatrix);
 
     // Configurar las opciones para k-means
@@ -168,7 +181,8 @@ export class TablaComponent implements OnInit, OnDestroy {
     const result = kmeans(dataMatrix, k, options);
 
     // Emitir el resultado a través de un evento para que otros componentes puedan recibirlo
-    this.kmeansTrained.emit(result)
+    this.kmeansTrained.emit(result);
+
     // result.centroids: Un array con las coordenadas de los centroides de cada cluster
     console.log('Centroids:', result.centroids);
 
@@ -178,103 +192,120 @@ export class TablaComponent implements OnInit, OnDestroy {
     this.router.navigate(['/entrenamiento'], {
       state: { centroids: JSON.stringify(result.centroids), clusters: JSON.stringify(result.clusters) }
     });
-  }
-
-  exportarExcel() {
-    const data: any[][] = [];
-    const headers: any[] = ['Nombre', ...this.preguntas.map(pregunta => pregunta.texto)];
-
-    data.push(headers);
-
-    this.respuestas.forEach(respuesta => {
-      const rowData: any[] = [respuesta.nombre];
-      this.preguntas.forEach(pregunta => {
-        rowData.push(this.obtenerRespuestaNombre(respuesta, pregunta.id));
-      });
-      data.push(rowData);
-    });
-
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Tabla Datos');
-
-    // Agregar los datos a la hoja de cálculo
-    data.forEach(rowData => {
-      worksheet.addRow(rowData);
-    });
-
-    // Estilos para el encabezado (cabecera) de la tabla
-    const headerRow = worksheet.getRow(1);
-    headerRow.font = { bold: true, color: { argb: '00000' } };
-    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'E3BFFE' } };
-
-    // Estilos para el contenido de la tabla (excluyendo el encabezado)
-    for (let row = 2; row <= data.length; row++) {
-      const contentRow = worksheet.getRow(row);
-      contentRow.font = { bold: false };
-      contentRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFF' } };
-    }
-
-    // Ajustar el ancho de las columnas (opcional)
-    worksheet.columns.forEach(column => {
-      column.width = 15;
-    });
-
-
-    // Generar el archivo Excel y descargarlo
-    workbook.xlsx.writeBuffer().then((data) => {
-      const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      saveAs(blob, 'tabla_datos.xlsx');
-    });
   }
 
-    exportarPDF() {
-      const columns = ['Nombre', ...this.preguntas.map(pregunta => pregunta.texto)];
-      const rows: string[][] = [];
 
-      this.respuestas.forEach(respuesta => {
-        const rowData = [respuesta.nombre];
-        this.preguntas.forEach(pregunta => {
-          rowData.push(this.obtenerRespuestaNombre(respuesta, pregunta.id));
-        });
-        rows.push(rowData);
-      });
+exportarExcel() {
+  const data: any[][] = [];
+  const headers: any[] = ['Nombre', ...this.preguntas.map(pregunta => pregunta.texto)];
 
-      const tableBody = [columns, ...rows];
+  data.push(headers);
 
-      const docDefinition: any = {
-        pageOrientation: 'landscape',
-        content: [
-          { text: 'Tabla de Datos', style: 'header' },
-          {
-            table: {
-              headerRows: 1,
-              widths: Array(columns.length).fill('*'),
-              body: tableBody,
-            },
-            style: 'table',
-          },
-        ],
-        styles: {
-          header: {
-            fontSize: 18,
-            bold: true,
-            color: '#000000',
-            margin: [0, 10, 0, 10], // Ajusta los márgenes superior e inferior según lo necesites
-          },
-          table: {
-            fontSize: 5, // Ajustar el tamaño del texto de la tabla
-            color: 'blue',
-          },
+  // Filtrar las respuestas de acuerdo al filtro de nombre y los filtros de preguntas
+  const respuestasFiltradas = this.respuestas.filter(respuesta => {
+    return this.filtroNombre === '' || respuesta.nombre.toLowerCase().includes(this.filtroNombre.toLowerCase());
+  }).filter(respuesta => {
+    return this.aplicarFiltros(respuesta);
+  });
+
+  respuestasFiltradas.forEach(respuesta => {
+    const rowData: any[] = [respuesta.nombre];
+    this.preguntas.forEach(pregunta => {
+      rowData.push(this.obtenerRespuestaNombre(respuesta, pregunta.id));
+    });
+    data.push(rowData);
+  });
+
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Tabla Datos');
+
+  // Agregar los datos a la hoja de cálculo
+  data.forEach(rowData => {
+    worksheet.addRow(rowData);
+  });
+
+  // Estilos para el encabezado (cabecera) de la tabla
+  const headerRow = worksheet.getRow(1);
+  headerRow.font = { bold: true, color: { argb: '00000' } };
+  headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'E3BFFE' } };
+
+  // Estilos para el contenido de la tabla (excluyendo el encabezado)
+  for (let row = 2; row <= data.length; row++) {
+    const contentRow = worksheet.getRow(row);
+    contentRow.font = { bold: false };
+    contentRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFF' } };
+  }
+
+  // Ajustar el ancho de las columnas (opcional)
+  worksheet.columns.forEach(column => {
+    column.width = 15;
+  });
+
+  // Generar el archivo Excel y descargarlo
+  workbook.xlsx.writeBuffer().then((data) => {
+    const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, 'tabla_datos.xlsx');
+  });
+}
+
+
+exportarPDF() {
+  const columns = ['Nombre', ...this.preguntas.map(pregunta => pregunta.texto)];
+  const rows: string[][] = [];
+
+  // Filtrar las respuestas de acuerdo al filtro de nombre y los filtros de preguntas
+  const respuestasFiltradas = this.respuestas.filter(respuesta => {
+    return this.filtroNombre === '' || respuesta.nombre.toLowerCase().includes(this.filtroNombre.toLowerCase());
+  }).filter(respuesta => {
+    return this.aplicarFiltros(respuesta);
+  });
+
+  respuestasFiltradas.forEach(respuesta => {
+    const rowData = [respuesta.nombre];
+    this.preguntas.forEach(pregunta => {
+      rowData.push(this.obtenerRespuestaNombre(respuesta, pregunta.id));
+    });
+    rows.push(rowData);
+  });
+
+  const tableBody = [columns, ...rows];
+
+  const docDefinition: any = {
+    pageOrientation: 'landscape',
+    content: [
+      { text: 'Tabla de Datos', style: 'header' },
+      {
+        table: {
+          headerRows: 1,
+          widths: Array(columns.length).fill('*'),
+          body: tableBody,
         },
-      };
+        style: 'table',
+      },
+    ],
+    styles: {
+      header: {
+        fontSize: 18,
+        bold: true,
+        color: '#000000',
+        margin: [0, 10, 0, 10], // Ajusta los márgenes superior e inferior según lo necesites
+      },
+      table: {
+        fontSize: 5, // Ajustar el tamaño del texto de la tabla
+        color: 'blue',
+      },
+    },
+  };
 
-      this.generarPDF(docDefinition); // Llamar a la función para generar el PDF
-    }
-    generarPDF(docDefinition: any) {
-      const pdfDocGenerator = pdfMake.createPdf(docDefinition);
+  this.generarPDF(docDefinition); // Llamar a la función para generar el PDF
+}
 
-      // Opción 1: Abre el PDF en una nueva ventana del navegador
-      pdfDocGenerator.open();
-    }
+generarPDF(docDefinition: any) {
+  const pdfDocGenerator = pdfMake.createPdf(docDefinition);
+
+  // Opción 1: Abre el PDF en una nueva ventana del navegador
+  pdfDocGenerator.open();
+
+}
 
   }
