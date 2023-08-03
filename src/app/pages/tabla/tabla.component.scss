@@ -1,27 +1,81 @@
-/* styles.css */
+// /* styles.css */
 
-/* Estilo para la tabla */
-table {
-  border-collapse: collapse;
-  border: 1px solid black; /* Borde negro de grosor 2px */
+// /* Estilo para la tabla */
+// table {
+//   border-collapse: collapse;
+//   border: 1px solid black; /* Borde negro de grosor 2px */
+//   margin-left: 35px;
+//   margin-right: auto;
+// }
+
+// /* Estilo para las celdas de la tabla */
+// th, td {
+//   border: 1px solid black; /* Borde negro de grosor 2px */
+//   padding: 8px;
+//   text-align: center;
+
+// }
+
+// /* Estilo para las cabeceras de la tabla */
+// th {
+//   background-color: rgb(227, 191, 254); /* Color de fondo gris claro */
+//   color: black;
+// }
+
+// .boton{
+//     background-color: rgb(227, 191, 254);
+//     align-items: center;
+//     margin-left: 40px;
+//     margin-block-end: 50px;
+//     width: 200px;
+//     height: 50px;
+//     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+//     margin-top: 20px;
+// }
+.filtro{
   margin-left: 35px;
-  margin-right: auto;
+
+ }
+.filtros{
+  margin-left: 15px;
+
+}
+/* Estilos para el contenedor de filtros */
+// .filtro-container {
+//   padding: 10px;
+//   border: 1px solid #ccc;
+//   background-color: #f9f9f9;
+//   border-radius: 5px;
+//   margin-bottom: 10px;
+// }
+
+/* Estilos para el contenedor de la tabla */
+.tabla-container {
+  border: 1px  rgb(227, 191, 254);
+  border-radius: 5px;
+  overflow: auto;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Estilo para las celdas de la tabla */
-th, td {
-  border: 1px solid black; /* Borde negro de grosor 2px */
+/* Estilos para la tabla */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border: 1px solid #ccc;
   padding: 8px;
-  text-align: center;
-
+  text-align: left;
 }
 
-/* Estilo para las cabeceras de la tabla */
-th {
-  background-color: rgb(227, 191, 254); /* Color de fondo gris claro */
-  color: black;
+thead {
+  background-color: #f2f2f2;
 }
 
+/* Estilos para los botones */
 .boton{
     background-color: rgb(227, 191, 254);
     align-items: center;
@@ -31,12 +85,4 @@ th {
     height: 50px;
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     margin-top: 20px;
-}
-.filtro{
-  margin-left: 35px;
-
- }
-.filtros{
-  margin-left: 15px;
-
 }
