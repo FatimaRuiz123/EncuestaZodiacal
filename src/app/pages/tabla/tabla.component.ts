@@ -138,25 +138,23 @@ export class TablaComponent implements OnInit, OnDestroy {
   }
 
   entrenar() {
-    // Filtrar las respuestas que cumplen con los filtros aplicados
-  const respuestasFiltradas = this.respuestas.filter(respuesta => this.aplicarFiltros(respuesta));
+    const dataMatrix: number[][] = [];
 
-  const dataMatrix: number[][] = [];
 
-  // Recorrer las respuestas filtradas para obtener los datos de entrenamiento
-  for (const respuesta of respuestasFiltradas) {
-    const rowData: number[] = [];
+    // Recorrer las respuestas para obtener los datos de entrenamiento
+    for (const respuesta of this.respuestas) {
+      const rowData: number[] = [];
 
-    for (const encuestaItem of respuesta.encuesta) {
-      rowData.push(encuestaItem.idpregunta); // Coordenada X (idpregunta)
-      rowData.push(encuestaItem.idrespuesta); // Coordenada Y (idrespuesta)
+      for (const encuestaItem of respuesta.encuesta) {
+        rowData.push(encuestaItem.idpregunta); // Coordenada X (idpregunta)
+        rowData.push(encuestaItem.idrespuesta); // Coordenada Y (idrespuesta)
+      }
+
+      dataMatrix.push(rowData);
     }
 
-    dataMatrix.push(rowData);
-  }
-
-  // Ahora tienes la matriz dataMatrix con los datos filtrados para el entrenamiento
-  console.log(dataMatrix);
+    // Ahora tienes la matriz dataMatrix con los datos adecuados para el entrenamiento
+    console.log(dataMatrix);
 
     // Configurar las opciones para k-means
     const options: KMeansOptions = {
@@ -167,7 +165,7 @@ export class TablaComponent implements OnInit, OnDestroy {
 
     // Luego puedes utilizar ml-kmeans para entrenar tu modelo con esta matriz...
     // Por ejemplo, entrenar el modelo con k=2 (2 clusters)
-    const k = 4;
+    const k = 2;
     const result = kmeans(dataMatrix, k, options);
 
     // Emitir el resultado a través de un evento para que otros componentes puedan recibirlo

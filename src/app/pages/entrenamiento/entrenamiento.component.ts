@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
-
+import * as pdfMake from 'pdfmake/build/pdfmake'; // Importar pdfMake correctamente
+import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import * as d3 from 'd3';
 
 
@@ -124,7 +125,58 @@ export class EntrenamientoComponent implements OnInit {
       .attr('r', 5) // Tamaño del círculo que representa los puntos del clúster
       .style('fill','blue');
   }
+  // Función para exportar a PDF
+  exportarPDF() {
+    if (!this.centroids) return; // Verificar si this.centroids es undefined
 
+  const columns = ['Cluster', 'Centroide X', 'Centroide Y'];
+  const rows: string[][] = [
+    columns,
+    ...this.centroids.map((centroid, index) => [`Cluster ${index + 1}`, centroid[0].toString(), centroid[1].toString()]),
+  ];
+
+    const tableBody = rows.map((row) => row.map((cell) => ({ text: cell })));
+
+    const docDefinition: any = {
+      pageOrientation: 'landscape',
+      content: [
+        { text: 'Resultados del Algoritmo KMeans', style: 'header' },
+        {
+          table: {
+            headerRows: 1,
+            widths: Array(columns.length).fill('*'),
+            body: tableBody,
+          },
+          // Aplicar el estilo de la cabecera de la tabla (headerRows)
+          layout: {
+            fillColor: function (rowIndex: number, node: any, columnIndex: any) {
+              // Fila de cabecera (preguntas)
+              if (rowIndex === 0) {
+                return '#E3BFFE'; // Color de fondo para la cabecera
+              }
+              // Resto de filas (respuestas)
+              return null;
+            },
+          },
+          style: 'table', // Estilo para las respuestas en el cuerpo (body)
+        },
+      ],
+      styles: {
+        header: {
+          fontSize: 18,
+          bold: true,
+          color: '#0000',
+          margin: [0, 10, 0, 10], // Ajusta los márgenes superior e inferior según lo necesites
+        },
+        table: {
+          fontSize: 12, // Ajustar el tamaño del texto de la tabla
+          color: 'black',
+        },
+      },
+    };
+
+    pdfMake.createPdf(docDefinition).open(); // Abrir el PDF en una nueva ventana del navegador
+  }
 }
 
 export class Cluster {
