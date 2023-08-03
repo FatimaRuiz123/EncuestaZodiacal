@@ -43,8 +43,23 @@ export class EntrenamientoComponent implements OnInit {
     console.log('Centroids:', this.centroids);
     console.log('Clusters:', this.clusters);
     this.mostrarGrafico();
+
   }
 
+  calcularPorcentajeClustering(): number[] {
+    const clusterCounts = [0, 0, 0, 0]; // Inicializamos el arreglo para contar cuántos puntos hay en cada clúster
+    if (this.clusters) {
+      for (const cluster of this.clusters) {
+        // Asumimos que el clúster asignado está en la propiedad "cluster" de cada objeto "Cluster"
+        clusterCounts[cluster.cluster]++;
+      }
+    }
+
+    const totalPoints = this.clusters ? this.clusters.length : 0; // Total de puntos asignados a clústeres
+    const percentages = clusterCounts.map((count) => (count / totalPoints) * 100);
+
+    return percentages;
+  }
 
   // Si deseas volver a la pantalla anterior, puedes usar esta función
   volverATabla() {
@@ -98,7 +113,7 @@ export class EntrenamientoComponent implements OnInit {
       .attr('r', 7) // Tamaño del círculo que representa el centroide
       .style('fill', 'green');
 
-    // Ejemplo de dibujar puntos asignados a clústeres
+    // Dibujar puntos asignados a clústeres
     g.selectAll('circle.cluster-point')
       .data(this.clusters || [])
       .enter()
@@ -107,7 +122,7 @@ export class EntrenamientoComponent implements OnInit {
       .attr('cx', (d) => xScale(d.x)) // Mostrar el Punto X en el eje X
       .attr('cy', (d) => yScale(d.y)) // Mostrar el Punto Y en el eje Y
       .attr('r', 5) // Tamaño del círculo que representa los puntos del clúster
-      .style('fill','blue'); // Asegúrate de que la propiedad color exista en tu clase Cluster
+      .style('fill','blue');
   }
 
 }
@@ -115,6 +130,7 @@ export class EntrenamientoComponent implements OnInit {
 export class Cluster {
   x: number;
   y: number;
+  cluster: any;
 
 
   constructor(x: number, y: number, color: string) {
@@ -122,4 +138,6 @@ export class Cluster {
     this.y = y;
 
   }
+
+
 }

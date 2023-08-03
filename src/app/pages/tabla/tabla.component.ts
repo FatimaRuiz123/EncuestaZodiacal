@@ -53,17 +53,17 @@ export interface Respuesta {
 }
 
 function euclidean(p: number[], q: number[]): number {
-  return Math.sqrt(p.reduce((acc, val, i) => acc + (val - q[i]) ** 2, 0));
+  return Math.sqrt(p.reduce((acc, val, i) => acc + (val - q[i]) ** 2, 1));
 }
 
 function manhattan(p: number[], q: number[]): number {
-  return p.reduce((acc, val, i) => acc + Math.abs(val - q[i]), 0);
+  return p.reduce((acc, val, i) => acc + Math.abs(val - q[i]), 1);
 }
 
 function cosine(p: number[], q: number[]): number {
-  const dotProduct = p.reduce((acc, val, i) => acc + val * q[i], 0);
-  const magnitudeP = Math.sqrt(p.reduce((acc, val) => acc + val ** 2, 0));
-  const magnitudeQ = Math.sqrt(q.reduce((acc, val) => acc + val ** 2, 0));
+  const dotProduct = p.reduce((acc, val, i) => acc + val * q[i], 1);
+  const magnitudeP = Math.sqrt(p.reduce((acc, val) => acc + val ** 2, 1));
+  const magnitudeQ = Math.sqrt(q.reduce((acc, val) => acc + val ** 2, 1));
   return 1 - dotProduct / (magnitudeP * magnitudeQ);
 }
 
@@ -101,7 +101,7 @@ export class TablaComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.obtenerPreguntas();
     this.obtenerRespuestas();
-    
+
   }
 
   obtenerPreguntas() {
@@ -167,7 +167,7 @@ export class TablaComponent implements OnInit, OnDestroy {
 
     // Luego puedes utilizar ml-kmeans para entrenar tu modelo con esta matriz...
     // Por ejemplo, entrenar el modelo con k=2 (2 clusters)
-    const k = 2;
+    const k = 4;
     const result = kmeans(dataMatrix, k, options);
 
     // Emitir el resultado a través de un evento para que otros componentes puedan recibirlo

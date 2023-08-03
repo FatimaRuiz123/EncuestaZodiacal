@@ -71,6 +71,16 @@
     </tbody>
   </table>
 
+  <div *ngIf="clusters">
+    <h2>Porcentaje de Puntos en Cada Clúster:</h2>
+    <ul>
+      <li *ngFor="let percentage of calcularPorcentajeClustering(); let i = index">
+        Clúster {{ i }}: {{ percentage.toFixed(2) }}%
+      </li>
+    </ul>
+  </div>
+
+
   <h2>Gráfico de Asignación de Puntos a Clusters con D3.js</h2>
   <svg #graficaD3 width="400" height="200"></svg>
 </body>
